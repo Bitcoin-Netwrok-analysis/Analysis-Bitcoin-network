@@ -1,9 +1,8 @@
 import mysql.connector
 import csv
 from multiprocessing import Pool
+from disjointset import DisjSet
  
-
-
 
 def set_data(i):
     dataBase = mysql.connector.connect(user = 'root',
@@ -198,6 +197,50 @@ def finding_coin_join():
             cursorObject.execute(f"INSERT INTO coinjoin (id) VALUES ({i})")
             dataBase.commit()
     dataBase.close()
+
+def tool_fun(n):
+    lis = []
+    q = 7693857//(n-1)-1
+    i = 1
+    for j in range(n-1):
+        lis.append((i,i+q))
+        i = i+q+1
+    lis.append((i,7693857))
+    return lis
+
+def dis_address(st):
+    s = st[0]
+    e = st[1]
+    dataBase = mysql.connector.connect(user = 'root',
+                               host = 'localhost',
+                              password = 'Mihir@2811')
+    cursorObject = dataBase.cursor() 
+    cursorObject.execute("USE BitcoinDatabase")
+    for i in range(s,e+1):
+        cursorObject.execute(f"SELECT * from inputs where id={i}")
+        inputs = cursorObject.fetchall()
+        cursorObject.execute(f"SELECT * from outputs where id={i}")
+        outputs = cursorObject.fetchall()
+        for j in inputs:
+            add = j[1]
+            cursorObject.execute("BEGIN")
+            cursorObject.execute(f"SELECT * from user where address='{add}'")
+            result = cursorObject.fetchall()
+            if len(result)==0:
+                cursorObject.execute(f"INSERT INTO user (address,user_id) VALUES ('{add}',-1)")
+            cursorObject.execute("COMMIT")
+        for j in outputs:
+            add = j[1]
+            cursorObject.execute("BEGIN")
+            cursorObject.execute(f"SELECT * from user where address='{add}'")
+            result = cursorObject.fetchall()
+            if len(result)==0:
+                cursorObject.execute(f"INSERT INTO user (address,user_id) VALUES ('{add}',-1)")
+            cursorObject.execute("COMMIT")
+
+       
+        
+    
     
 def distinct_addresses():
     dataBase = mysql.connector.connect(user = 'root',
@@ -213,36 +256,14 @@ def distinct_addresses():
     dataBase.commit()
     cursorObject.execute("CREATE INDEX idx_ui ON user(user_id) USING HASH;")
     dataBase.commit()
-    for i in range(1,7693857):
-        cursorObject.execute(f"SELECT * from inputs where id={i}")
-        inputs = cursorObject.fetchall()
-        cursorObject.execute(f"SELECT * from outputs where id={i}")
-        outputs = cursorObject.fetchall()
-        for j in inputs:
-            add = j[1]
-            cursorObject.execute(f"SELECT * from user where address='{add}'")
-            result = cursorObject.fetchall()
-            if len(result)==0:
-                cursorObject.execute(f"INSERT INTO user (address,user_id) VALUES ('{add}',-1)")
-                dataBase.commit()
-        for j in outputs:
-            add = j[1]
-            cursorObject.execute(f"SELECT * from user where address='{add}'")
-            result = cursorObject.fetchall()
-            if len(result)==0:
-                cursorObject.execute(f"INSERT INTO user (address,user_id) VALUES ('{add}',-1)")
-                dataBase.commit()
+    numbers = tool_fun(50)
+    with Pool(50) as p:
+        p.map(dis_address,numbers)
             
-        
     
-    
-    
-    
-    
-
     
 if __name__=='__main__':
-    finding_coin_join()
+    distinct_addresses()
                 
     # Disconnecting from the server
     
