@@ -26,6 +26,10 @@ def execute_query(thread_id):
     cursor.execute(f"SELECT id FROM trans_detail WHERE day = {thread_id}")
     result = cursor.fetchall()
     for i in result:
+        cursor.execute(f"SELECT id from coinjoin where id = {i[0]}")
+        resul = cursor.fetchall()
+        if len(resul)!=0:
+            continue
         cursor.execute(f"SELECT address from inputs where id={i[0]}")
         resul = cursor.fetchall()
         if len(resul)>0:
