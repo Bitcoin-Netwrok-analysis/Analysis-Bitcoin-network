@@ -1,5 +1,5 @@
 class DisjSet:
-    def __init__(self, n,parent):
+    def __init__(self, parent):
         self.parent = parent
         self.rank = {}
         for i in parent:

@@ -1,7 +1,7 @@
 import mysql.connector
 import csv
 from multiprocessing import Pool
-from disjointset import DisjSet
+
  
 
 def set_data(i):
@@ -260,6 +260,9 @@ def distinct_addresses():
     with Pool(50) as p:
         p.map(dis_address,numbers)
             
+    
+    
+    
     
     
 if __name__=='__main__':
