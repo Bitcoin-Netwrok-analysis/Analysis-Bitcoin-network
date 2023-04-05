@@ -1,6 +1,7 @@
 import threading
 import mysql.connector
 from disjointset import DisjSet
+import csv
 
 
 # Create a connection pool
@@ -33,21 +34,22 @@ def execute_query(thread_id):
             for j in range(1,len(resul)):
                 ds.Union(fad,resul[j][0])
             lock.release()
+        print(i[0],end = '\r')
+                
        
     # Release the connection back to the pool
     conn.close()
 
 # Create 5 threads and start them
 if __name__=='__main__':
-    conn = conn_pool.get_connection()
-    cursor = conn.cursor()
-    cursor.execute(f"SELECT address FROM user")
-    result = cursor.fetchall()
-    conn.close()
     parent = {}
-    for i in result:
-        parent[i[0]]=i[0]
-    del result
+    
+    with open('distinct.csv','r') as file:
+        reader = csv.reader(file)
+        
+        for i in reader:
+            parent[i[0]] = i[0]
+            
     global ds
     ds = DisjSet(parent)
     threads =[]
@@ -60,13 +62,20 @@ if __name__=='__main__':
     id_dict={}
     count = 0
     for i in ds.parent:
+        ds.find(i)
+    for i in ds.parent:
         if(ds.parent[i] in id_dict):
             ds.parent[i]=id_dict[ds.parent[i]]
         else:
-            ds.parent[i]=count
             id_dict[ds.parent[i]]=count
+            ds.parent[i]=count
             count+=1
-    del id_dict
+    with open('cluster.csv',mode = 'a', newline='') as file:
+        writer1 = csv.writer(file)
+        
+        for i in ds.parent:
+            writer1.writerow([i,ds.parent[i]])
+             
          
     
         
