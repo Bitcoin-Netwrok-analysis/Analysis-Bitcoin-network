@@ -15,8 +15,7 @@ class user:
         self.out_degree_days = {}
         self.shortest_path = None
     def to_dict(self):
-        return {'lock': self.lock,
-                'user_id': self.user_id,
+        return {'user_id': self.user_id,
                 'out_id': self.out_id,
                 'in_id': self.in_id,
                 'in_degree_days': self.in_degree_days,
