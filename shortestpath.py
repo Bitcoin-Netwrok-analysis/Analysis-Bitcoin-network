@@ -29,7 +29,7 @@ def BFS(bfs):
                 final_users[int(j)].shortest_path = num
                 temp.append(final_users[int(j)])
     del bfs
-    BFS(temp)
+    BFS(temp) 
     
 BFS(bfs)
 print('process 2 completed')

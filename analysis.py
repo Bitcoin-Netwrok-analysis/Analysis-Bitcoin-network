@@ -1,20 +1,22 @@
 from enum import Enum
 import csv
 import json
+from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
 import numpy as np
+
 
 class Tag(Enum):
     CRIMINAL = 0
     EXCHANGE = 1
     SERVICES = 2
-    MINER =3
+    MINER = 3
     UNTAGGED = 4
     
 
 class user:
     
-    def __init__(self, user_id, out_id,in_id, in_degree_days, out_degree_days,shortest_path = None,lock =None):
+    def __init__(self, user_id, out_id,in_id, in_degree_days, out_degree_days,shortest_path,lock =None):
         self.lock = lock
         self.user_id = user_id
         self.out_id = out_id
@@ -114,47 +116,71 @@ if __name__ == '__main__':
                 
              
     final_users = []
-    with open('second_last.json', 'r') as f:
+    with open('last.json', 'r') as f:
         counter = 0
         for line in f:
             user_dict = json.loads(line)
             if counter in users:
-                User = user(user_dict['user_id'], user_dict['out_id'], user_dict['in_id'], user_dict['in_degree_days'],user_dict['out_degree_days'])
+                User = user(user_dict['user_id'], user_dict['out_id'], user_dict['in_id'], user_dict['in_degree_days'],user_dict['out_degree_days'],user_dict['shortest_path'])
                 User.tag = users[counter]
+    
                 final_users.append(User)
             counter+=1
     del users
     print('process 3 completed')
     
     
-    x = []
-    y = []
+    y_crime = []
+    y_exchange = []
+    y_miner = []
+    y_services = []
+    x_crime = []
+    x_exchange = []
+    x_miner = []
+    x_services = []
+    z_crime = []
+    z_exchange = []
+    z_miner = []
+    z_services = []
     for i in final_users:
         match i.tag:
             case Tag.CRIMINAL:
-                x.append(2)
+                x_crime.append(i.frequency())
+                y_crime.append(np.log2(i.avg_out_transaction()))
+                z_crime.append(np.log2(i.avg_outdegree_day()+1))
+                
             case Tag.EXCHANGE:
-                x.append(1)
+                if(len(x_exchange)>30):
+                    continue
+                x_exchange.append(i.frequency())
+                y_exchange.append(np.log2(i.avg_out_transaction()))
+                z_exchange.append(np.log2(i.avg_outdegree_day()+1))
+                
+                
             case Tag.MINER:
-                x.append(3)
+                x_miner.append(i.frequency())
+                y_miner.append(np.log2(i.avg_out_transaction()))
+                z_miner.append(np.log2(i.avg_outdegree_day()+1))
+                
+                
             case Tag.SERVICES:
-                x.append(4)
-        y.append(3*np.log(i.frequency()+1))
-    plt.scatter(x,y)
-    plt.show()
-    
-    
-    
-            
-    
+                x_services.append(i.frequency())
+                y_services.append(np.log2(i.avg_out_transaction()))
+                z_services.append(np.log2(i.avg_outdegree_day()+1))
+                
 
-            
+    fig = plt.figure(figsize = (10,10))
+    ax = plt.axes(projection='3d')
+    ax.grid()
+
+    ax.scatter(x_crime, y_crime, z_crime, c = 'r') 
+    ax.scatter(x_exchange, y_exchange, z_exchange, c = 'b')       
+    ax.scatter(x_miner, y_miner, z_miner, c = 'y')       
+    ax.scatter(x_services, y_services, z_services, c = 'g')       
+          
+    # plt.scatter(x_crime,y_crime,c = 'r')
+    # plt.scatter(x_exchange,y_exchange,c = 'b')
+    # plt.scatter(x_miner,y_miner,c = 'y')
+    # plt.scatter(x_services,y_services,c = 'g')
     
-    
-    
-        
-        
-            
-        
-    
-    
+    plt.show()
