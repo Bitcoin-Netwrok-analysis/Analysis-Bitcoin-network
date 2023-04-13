@@ -178,9 +178,5 @@ if __name__ == '__main__':
     ax.scatter(x_miner, y_miner, z_miner, c = 'y')       
     ax.scatter(x_services, y_services, z_services, c = 'g')       
           
-    # plt.scatter(x_crime,y_crime,c = 'r')
-    # plt.scatter(x_exchange,y_exchange,c = 'b')
-    # plt.scatter(x_miner,y_miner,c = 'y')
-    # plt.scatter(x_services,y_services,c = 'g')
     
     plt.show()
