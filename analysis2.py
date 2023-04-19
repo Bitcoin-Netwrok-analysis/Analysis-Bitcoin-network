@@ -124,6 +124,6 @@ def one_attribute():
     
     plt.scatter(x,y)
     plt.show()
-    
-one_attribute()
+if __name__=='__main__':
+    one_attribute()
         
